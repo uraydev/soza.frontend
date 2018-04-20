@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # map
 
 > Map of safe childhood
@@ -28,3 +29,7 @@ npm test
 ```
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+=======
+# soza-maps
+
+>>>>>>> 835060dea10025d048ba2685353af5521bb26d07
