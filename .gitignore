@@ -16,3 +16,6 @@ selenium-debug.log
 *.njsproj
 *.sln
 *.swp
+
+# Private data
+src/middlewares/config.js
