@@ -1,42 +1,76 @@
-import WP from '@/lib/wp'
+import Vue from 'vue'
+import * as types from '../../types'
+import { database } from 'firebase'
 
 export default {
   state: {
     loadedUserData: null,
-    loadedUserMaps: null
+    loadedUserMaps: null,
+    loadedUserParticipating: null
   },
   mutations: {
-    setLoadedUserData (state, payload) { state.loadedUserData = payload },
-    setLoadedUserMps (state, payload) { state.loadedUserMaps = payload }
+    [types.SET_LOADED_USER_DATA] (state, payload) {
+      Vue.set(state, 'loadedUserData', payload)
+    },
+    [types.SET_LOADED_USER_MAPS] (state, payload) {
+      Vue.set(state, 'loadedUserMaps', payload)
+    },
+    [types.SET_LOADED_USER_PARTICIPATING] (state, value) {
+      Vue.set(state, 'loadedUserParticipating', value)
+    }
   },
   actions: {
-    async loadUserData ({ commit, dispatch }, username) {
-      commit('setLoading', true)
+    async loadUserData ({ commit, dispatch }, uid) {
       try {
-        const data = await WP.userBySlug(username)
-        commit('setLoadedUserData', data)
-        commit('setLoading', false)
-        dispatch('loadUserMaps', data.ID)
+        await database()
+          .ref(`/users/${uid}`)
+          .on('value', snapshot => {
+            const profileData = snapshot.val()
+            profileData.uid = uid
+            commit('setLoadedUserData', profileData)
+          })
       } catch (error) {
-        throw new Error(error)
+        commit('setMessage', error)
       }
+      commit('setLoaded', 'loadUserData')
     },
-    async loadUserMaps ({ commit }, userId) {
-      commit('setLoading', true)
-      try {
-        const maps = await WP.collection(
-          'maps', { author: userId, context: 'embed' }
-        )
-        commit('setLoadedUserMaps', maps)
-        commit('setLoading', false)
-      } catch (error) {
-        throw new Error(error)
-      }
-    }
 
+    async loadUserMaps ({ commit }, userId) {
+      try {
+        // const maps = await WP.collection(
+        //   'maps', { author: userId, context: 'embed' }
+        // )
+        // commit('setLoadedUserMaps', maps)
+      } catch (error) {
+        commit('setMessage', error)
+      }
+      commit('setLoaded', 'loadUserMaps')
+    },
+
+    async loadUserParticipating ({ commit, getters }, uid) {
+      try {
+        const data = await database()
+          .ref(`participation/${uid}`)
+          .once('value')
+        const maps = []
+        Object
+          .keys(data.val())
+          .forEach(async key => {
+            const map = await database()
+              .ref(`maps/${key}`)
+              .once('value')
+            maps.push(map.val())
+          })
+        commit('setLoadedUserParticipating', maps)
+      } catch (error) {
+        commit('setMessage', error)
+      }
+      commit('setLoaded', 'loadUserParticipating')
+    }
   },
   getters: {
     getLoadedUserData: state => state.loadedUserData,
-    getLoadedUserMaps: state => state.loadedUserMaps
+    getLoadedUserMaps: state => state.loadedUserMaps,
+    getLoadedUserParticipating: state => state.loadedUserParticipating
   }
 }

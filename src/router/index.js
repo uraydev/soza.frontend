@@ -1,31 +1,29 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Feed from '@/components/Feed'
-// import Console from '@/components/Console';
-import UserProfile from '@/components/UserProfile'
-import UserToolbar from '@/components/toolbars/UserToolbar'
-// import UserConsole from '@/components/UserConsole';
-// import UserOptions from '@/components/UserOptions';
-import UserMenu from '@/components/UserMenu'
-// import UserList from '@/components/UserList';
-import Map from '@/components/Map'
-import MapDescription from '@/components/MapDescription'
-import MapToolbar from '@/components/toolbars/MapToolbar'
-import MapAbout from '@/components/MapAbout'
-import MapParticipants from '@/components/MapParticipants'
-// import MapConsole from '@/components/MapConsole';
-import MapManage from '@/components/MapManage'
-import MapList from '@/components/MapList'
-import MapFeed from '@/components/MapFeed'
-// import Point from '@/components/Point';
-// import PointConsole from '@/components/PointConsole';
-// import PointManage from '@/components/PointManage';
-// import PointList from '@/components/PointList';
-// import User from '@/components/User';
-// import Search from '@/components/Search';
-// import Blog from '@/components/Blog';
-// import BlogPost from '@/components/BlogPost';
-// import Page from '@/components/Page';
+import AuthGuard from './auth-guard'
+import AuthBase from '@/components/auth/Base'
+import SignUpEmailPassword from '@/components/auth/SignUpEmailPassword'
+import SignInEmailPassword from '@/components/auth/SignInEmailPassword'
+import SignInEmail from '@/components/auth/SignInEmail'
+import SignUpPhone from '@/components/auth/SignUpPhone'
+// import SignUpPersonal from '@/components/auth/SignUpPersonal'
+// import SetPassword from '@/components/auth/SetPassword'
+// import ConfirmCode from '@/components/auth/ConfirmCode'
+import App from '@/components/App'
+import AccountFeed from '@/components/account/Feed'
+import AccountToolbar from '@/components/account/Toolbar'
+import AccountPublicProfile from '@/components/account/PublicProfile'
+import MapToolbar from '@/components/map/Toolbar'
+import MapBase from '@/components/map/Base'
+import Map from '@/components/map/View'
+import MapFeed from '@/components/map/Feed'
+import MapAbout from '@/components/map/About'
+import MapParticipants from '@/components/map/Participants'
+import MapConsole from '@/components/map/Console'
+import CreateMapFab from '@/components/maps/CreateMapFab'
+import MapsList from '@/components/maps/List'
+import MapsToolbar from '@/components/maps/Toolbar'
+import LandingPage from '@/components/LandingPage'
 
 Vue.use(Router)
 
@@ -33,162 +31,120 @@ export default new Router({
   mode: 'history',
   routes: [
     {
+      path: '/marketing',
+      component: LandingPage
+    },
+    {
+      path: '/auth',
+      component: AuthBase,
+      children: [
+        // {
+        //   path: '/auth/personal',
+        //   name: 'SignUpPersonal',
+        //   component: SignUpPersonal
+        // },
+        // {
+        //   path: '/auth/confirm',
+        //   name: 'ConfirmCode',
+        //   component: ConfirmCode
+        // },
+        // {
+        //   path: '/auth/password',
+        //   name: 'SetPassword',
+        //   component: SetPassword
+        // },
+        {
+          path: '/auth/signup/phone',
+          name: 'SignUpPhone',
+          component: SignUpPhone
+        },
+        {
+          path: '/auth/signup',
+          name: 'SignUpEmailPassword',
+          component: SignUpEmailPassword
+        },
+        {
+          path: '/auth/signin',
+          name: 'SignInEmailPassword',
+          component: SignInEmailPassword
+        },
+        {
+          path: '/auth/signin/email',
+          name: 'SignUpEmail',
+          component: SignInEmail,
+          props: true
+        }
+      ]
+    },
+    {
       path: '/',
-      name: 'Home',
-      redirect: '/feed'
-    },
-    {
-      path: '/feed',
-      name: 'Feed',
-      component: Feed
-    },
-    {
-      path: '/maps',
-      name: 'Maps',
-      components: {
-        'default': MapList,
-        sidebar: UserMenu
-      }
-    },
-    {
-      path: '/maps/add',
-      name: 'AddMap',
-      component: MapManage,
-      props: true
-    },
-    {
-      path: '/maps/:id',
-      name: 'Map',
-      components: {
-        'default': Map,
-        sidebar: MapDescription,
-        toolbar: MapToolbar
-      },
-      props: { 'default': true, sidebar: true }
-    },
-    {
-      path: '/maps/:id/about',
-      name: 'MapAbout',
-      component: {
-        'default': MapAbout,
-        sidebar: MapDescription,
-        toolbar: MapToolbar
-      },
-      props: { 'default': true, sidebar: true }
-    },
-    {
-      path: '/maps/:id/feed',
-      name: 'MapFeed',
-      component: {
-        'default': MapFeed,
-        sidebar: MapDescription,
-        toolbar: MapToolbar
-      },
-      props: { 'default': true, sidebar: true }
-    },
-    {
-      path: '/maps/:id/participants',
-      name: 'MapParticipants',
-      component: MapParticipants,
-      props: true
-    },
-    {
-      path: '/:username',
-      name: 'User',
-      components: {
-        'default': UserProfile,
-        toolbar: UserToolbar
-      },
-      props: true
+      component: App,
+      beforeEnter: AuthGuard,
+      children: [
+        {
+          path: '',
+          name: 'Home',
+          redirect: '/feed'
+        },
+        {
+          path: '/feed',
+          name: 'Feed',
+          component: AccountFeed
+        },
+        {
+          path: '/search',
+          name: 'Search',
+          components: {
+            default: MapsList,
+            toolbar: MapsToolbar,
+            fab: CreateMapFab
+          }
+        },
+        {
+          path: '/maps/:mapId',
+          props: { default: true, toolbar: true },
+          components: {
+            default: MapBase,
+            toolbar: MapToolbar
+          },
+          children: [
+            {
+              path: '',
+              name: 'MapView',
+              component: Map
+            },
+            {
+              path: 'about',
+              name: 'MapAbout',
+              component: MapAbout
+            },
+            {
+              path: 'feed',
+              name: 'MapFeed',
+              component: MapFeed
+            },
+            {
+              path: 'participants',
+              name: 'MapParticipants',
+              component: MapParticipants
+            },
+            {
+              path: 'console',
+              name: 'MapConsole',
+              component: MapConsole
+            }
+          ]
+        },
+        {
+          path: '/:userId',
+          name: 'User',
+          components: {
+            default: AccountPublicProfile,
+            toolbar: AccountToolbar
+          },
+          props: { default: true, toolbar: true }
+        }
+      ]
     }
-    // {
-    //   path: '/console',
-    //   component: Console,
-    //   children: [
-    //     {
-    //       path: '',
-    //       name: 'UserConsole',
-    //       component: UserConsole,
-    //     },
-    //     {
-    //       path: 'manage',
-    //       name: 'UserOptions',
-    //       component: UserOptions,
-    //     },
-    //     {
-    //       path: 'maps',
-    //       name: 'UserMaps',
-    //       component: MapList,
-    //     },
-    //     {
-    //       path: 'add_map',
-    //       name: 'UserAddMap',
-    //       component: MapManage,
-    //     },
-    //     {
-    //       path: 'following',
-    //       name: 'UserFollowing',
-    //       component: MapList,
-    //     },
-    //     {
-    //       path: 'points',
-    //       name: 'UserPoints',
-    //       component: PointList,
-    //       children: [
-    //         {
-    //           path: 'manage',
-    //           name: 'UserPointsOptions',
-    //           component: PointManage,
-    //         },
-    //       ],
-    //     },
-    //     /*{
-    //       path: ':id',
-    //       name: 'UserMap',
-    //       component: Map,
-    //       children: [
-    //         {
-    //           path: 'console',
-    //           name: 'UserMapConsole',
-    //           component: MapConsole,
-    //         },
-    //         {
-    //           path: 'manage',
-    //           name: 'UserMapOptions',
-    //           component: MapManage,
-    //         },
-    //         {
-    //           path: 'points',
-    //           name: 'UserMapPoints',
-    //           component: PointList,
-    //           children: [
-    //             {
-    //               path: ':id',
-    //               name: 'UserMapPoint',
-    //               component: Point,
-    //               children: [
-    //                 {
-    //                   path: 'console',
-    //                   name: 'UserMapPointConsole',
-    //                   component: PointConsole,
-    //                 },
-    //               ],
-    //             },
-    //           ],
-    //         },
-    //         {
-    //           path: 'add_point',
-    //           name: 'UserMapAddPoint',
-    //           component: PointManage,
-    //         },
-    //         {
-    //           path: 'followers',
-    //           name: 'UserMapFollowers',
-    //           component: UserList,
-    //         },
-    //       ],
-    //     },*/
-    //   ],
-    // },
   ]
 })

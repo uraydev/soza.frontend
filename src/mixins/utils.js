@@ -1,9 +1,7 @@
 export default {
-
   data () {
     return {}
   },
-
   methods: {
     goBack () {
       this.$router.go(-1)

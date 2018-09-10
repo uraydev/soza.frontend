@@ -1,7 +1,7 @@
-import utils from '@/mixins/utils'
+import Vue from 'vue'
+import * as types from '../../types'
 
 export default {
-  mixins: [utils],
   state: {
     loadedAccountLocale: null,
     loadedAccountTheme: null,
@@ -9,9 +9,15 @@ export default {
     loadedAccountTimeZone: null
   },
   mutations: {
-    setLoadedAccountLocale (state, locale) { state.loadedAccountLocale = locale },
-    setLoadedAccountTheme (state, name) { state.loadedAccountTheme = name },
-    setLoadedAccountDateFormat (state, format) { state.loadedAccountDateFormat = format }
+    [types.SET_LOADED_ACCOUNT_LOCALE] (state, locale) {
+      Vue.set(state, 'loadedAccountLocale', locale)
+    },
+    [types.SET_LOADED_ACCOUNT_THEME] (state, name) {
+      Vue.set(state, 'loadedAccountTheme', name)
+    },
+    [types.SET_LOADED_ACCOUNT_DATE_FORMAT] (state, format) {
+      Vue.set(state, 'loadedAccountDateFormat', format)
+    }
   },
   actions: {},
   getters: {

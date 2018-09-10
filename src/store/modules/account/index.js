@@ -1,29 +1,24 @@
-import WP from '@/lib/wp'
-import settings from './settings'
+import Vue from 'vue'
+import auth from './auth'
+import * as types from '../../types'
 
 export default {
   state: {
-    loadedAccount: null
+    loadedAccount: null,
+    loadedFollowedMaps: null
   },
   mutations: {
-    setLoadedAccount (state, payload) { state.loadedAccount = payload }
-  },
-  actions: {
-    async loadAccount ({ commit, dispatch }, payload) {
-      commit('setLoading', true)
-      try {
-        const { data: response } = await WP.authorize(payload)
-        commit('setLoadedAccount', response)
-        commit('setLoading', false)
-      } catch (error) {
-        throw new Error(error)
-      }
+    [types.SET_LOADED_ACCOUNT] (state, payload) {
+      Vue.set(state, 'loadedAccount', payload)
     }
   },
-  getters: {
-    getLoadedAccountToken: state => state.loadedAccount.token,
-    getLoadedAccountSlug: state => state.loadedAccount.user_nickname,
-    getLoadedAccountId: state => state.loadedAccount.user_id
+  actions: {
+    async followMap ({ commit }, mapId) {},
+    async loadFollowedMaps ({ commit }) {}
   },
-  modules: { settings }
+  getters: {
+    isSignedIn: state => !!state.loadedAccount,
+    getLoadedAccount: state => state.loadedAccount
+  },
+  modules: { auth }
 }
